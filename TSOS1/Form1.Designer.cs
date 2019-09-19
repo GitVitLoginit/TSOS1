@@ -255,10 +255,10 @@
             0,
             0});
             this.numericAmplitude.Minimum = new decimal(new int[] {
-            1,
+            10000,
             0,
             0,
-            0});
+            -2147483648});
             this.numericAmplitude.Name = "numericAmplitude";
             this.numericAmplitude.Size = new System.Drawing.Size(120, 22);
             this.numericAmplitude.TabIndex = 30;

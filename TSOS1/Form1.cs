@@ -54,7 +54,11 @@ namespace TSOS1
 
             PointPairList synPairs = ComputePoints(amplitude,phase,frequency,N,Signal.syn);
 
-            PointPairList drawPairs = ComputePoints(amplitude, phase, frequency, N, Signal.saw, synPairs);
+            PointPairList sawPairs = ComputePoints(amplitude, phase, frequency, N, Signal.saw, synPairs);
+
+            PointPairList trianglePairs = ComputePoints(amplitude, phase, frequency, N, Signal.triangle);
+
+            PointPairList recPairs = ComputePoints(amplitude, phase, frequency, N, Signal.rectangle);
 
             GraphPane myPane = zgc.GraphPane;
 
@@ -65,7 +69,7 @@ namespace TSOS1
             // symbols, and "Porsche" in the legend
             zgc.GraphPane.CurveList.Clear();
             LineItem myCurve = myPane.AddCurve("Parabola",
-               drawPairs, Color.Black, SymbolType.None);
+               trianglePairs, Color.Blue, SymbolType.Circle);
             
       
         }
@@ -85,6 +89,14 @@ namespace TSOS1
                     {
                         return GetPointsForSaw(pairList, amplitude, phase, frequency, N,synPoints);
                     }
+                case Signal.triangle:
+                    {
+                        return GetPointsForTriangle(pairList, amplitude, phase, frequency, N, synPoints);
+                    }
+                case Signal.rectangle:
+                    {
+                        return GetPointsForRectangle(pairList, amplitude, phase, frequency, N, synPoints);
+                    }
             }
             return null;
         }
@@ -93,7 +105,7 @@ namespace TSOS1
         {
             for (var index = 0; index <= N; index++)
             {
-                var first = (2 * Math.PI * phase * index) / N + phase;
+                var first = (2 * Math.PI * frequency * index) / N + phase;
                 var second = amplitude * Math.Sin(first);
 
                 pairList.Add(index, second);
@@ -105,16 +117,12 @@ namespace TSOS1
         {
             for (var index = 0; index <= N; index++)
             {
-                //var first = Math.Pow(-1,index+1)/index * Math.Sin(index * DoubleList[index])*30 *2/Math.PI;
-                double sumresult = 0;
-                double period = (1 / frequency);
-                for (var y = 1; y <= 30; y++)
-                {
-                    sumresult += 1/y * Math.Sin((y * 2 * Math.PI )/ (period * index));
-                }
-                var result = (synPoints[index].Y / 2 - synPoints[index].Y / Math.PI)*sumresult;
-
-                pairList.Add(index, result);
+                var period = (1 / frequency)*200;
+                var first = (-2*amplitude)/Math.PI;// (2 * amplitude / Math.PI);
+                var arcTan = Math.Atan(1/(Math.Tan(index*Math.PI/period))); //Math.Asin(Math.Sin(2 * Math.PI * index * frequency));
+                var second = first * arcTan;
+                
+                pairList.Add(index, second);
             }
             return pairList;
         }
@@ -123,20 +131,29 @@ namespace TSOS1
         {
             for (var index = 0; index <= N; index++)
             {
-                //var first = Math.Pow(-1,index+1)/index * Math.Sin(index * DoubleList[index])*30 *2/Math.PI;
-                double sumresult = 0;
-                double period = (1 / frequency);
-                for (var y = 1; y <= 30; y+=2)
-                {
-                    sumresult += Math.Sin((((2 * Math.PI)/frequency)*index)/y);
-                }
-                var result =((4* synPoints[index].Y) / Math.PI)*sumresult;
-
-                pairList.Add(index, result);
+                var first = frequency * index + phase;// (2 * amplitude / Math.PI);
+                var arcSin = (index - (float)Math.Floor(index + 0.5 * frequency)); //Math.Asin(Math.Sin(2 * Math.PI * index * frequency));
+                var second = amplitude * (2*(2*Math.Floor(frequency*index)-2*Math.Floor(2*frequency*index)) + 1);
+                
+                pairList.Add(index, second);
             }
             return pairList;
         }
 
+
+        private static PointPairList GetPointsForTriangle(PointPairList pairList, double amplitude, double phase, double frequency, double N, PointPairList synPoints)
+        {
+            for (var index = 0; index <= N; index++)
+            {
+                var period = (1 / frequency)*200;
+                var first = amplitude * Math.Asin(Math.Sin(2*Math.PI*index/period))/Math.PI;// (2 * amplitude / Math.PI);
+             
+                
+
+                pairList.Add(index, first);
+            }
+            return pairList;
+        }
 
         private static void SetParams(ZedGraphControl zgc)
         {
@@ -149,10 +166,10 @@ namespace TSOS1
             myPane.YAxis.Cross = 0.0;
             // Turn off the axis frame and all the opposite side tics
             myPane.Chart.Border.IsVisible = false;
-            myPane.YAxis.Scale.Min = -100;
-            myPane.YAxis.Scale.Max = 100;
-            myPane.XAxis.Scale.Min = -100;
-            myPane.XAxis.Scale.Max = 100;
+            myPane.YAxis.Scale.Min = -200;
+            myPane.YAxis.Scale.Max = 200;
+            myPane.XAxis.Scale.Min = 0;
+            myPane.XAxis.Scale.Max = 200;
             // Calculate the Axis Scale Ranges
             zgc.AxisChange();
             zgc.Refresh();
