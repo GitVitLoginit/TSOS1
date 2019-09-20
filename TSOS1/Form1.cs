@@ -15,7 +15,7 @@ namespace TSOS1
     public partial class Form1 : Form
     {
         private static Random _random = new Random();
-        private static int NoizeStep { get {return _random.Next(40, 80); } }
+        private static int NoizeStep { get {return _random.Next(-40, 40); } }
         public Form1()
         {
             InitializeComponent();
@@ -76,7 +76,7 @@ namespace TSOS1
       
         }
 
-        private static PointPairList ComputePoints (double amplitude, double phase, double frequency, int N, Signal signal, PointPairList synPoints =null)
+        private  PointPairList ComputePoints (double amplitude, double phase, double frequency, int N, Signal signal, PointPairList synPoints =null)
         {
             PointPairList pairList = new PointPairList();
 
@@ -103,9 +103,10 @@ namespace TSOS1
             return null;
         }
 
-        private static PointPairList GetPointsForSyn(PointPairList pairList, double amplitude, double phase, double frequency, int N)
+        private  PointPairList GetPointsForSyn(PointPairList pairList, double amplitude, double phase, double frequency, int N)
         {
-            //for (var index = 0; index <= N; index++)
+            var noize = checkBoxNoize.Checked;
+                       //for (var index = 0; index <= N; index++)
             //{
             //    var length = (2 * Math.PI * frequency * index) / N ;
             //    var lengthWihPhase = length + phase;
@@ -121,56 +122,62 @@ namespace TSOS1
                 var length = (2 * Math.PI * frequency * index) / N;
                 var lengthWihPhase = length + phase;
                 var sin = Math.Sin(lengthWihPhase);
-                var second = amplitude * sin + NoizeStep;
-
-                pairList.Add(index, second);
+                var y = amplitude * sin;
+                y = noize ? y + NoizeStep : y;
+                pairList.Add(index, y);
             }
             return pairList;
         }
 
-        private static PointPairList GetPointsForSaw(PointPairList pairList, double amplitude, double phase, double frequency, int N, PointPairList synPoints)
+        private  PointPairList GetPointsForSaw(PointPairList pairList, double amplitude, double phase, double frequency, int N, PointPairList synPoints)
         {
+            var noize = checkBoxNoize.Checked;
+
             for (var index = 0; index <= N; index++)
             {
                 var period = (1 / frequency)*200;
                 var first = (-2*amplitude)/Math.PI;// (2 * amplitude / Math.PI);
                 var arcTan = Math.Atan(1/(Math.Tan(index*Math.PI/period))); //Math.Asin(Math.Sin(2 * Math.PI * index * frequency));
                 var second = first * arcTan;
-                
+                second = noize ? second + NoizeStep : second;
                 pairList.Add(index, second);
             }
             return pairList;
         }
 
-        private static PointPairList GetPointsForRectangle(PointPairList pairList, double amplitude, double phase, double frequency, int N, PointPairList synPoints)
+        private  PointPairList GetPointsForRectangle(PointPairList pairList, double amplitude, double phase, double frequency, int N, PointPairList synPoints)
         {
+            var noize = checkBoxNoize.Checked;
+
             for (var index = 0; index <= N; index++)
             {
                 var period = (1 / frequency) * 300;
                 var arcTan = amplitude* Math.Sign(Math.Sin(2 * Math.PI * index / period)); //Math.Asin(Math.Sin(2 * Math.PI * index * frequency));
-    
 
+                arcTan = noize ? arcTan + NoizeStep : arcTan;
                 pairList.Add(index, arcTan);
             }
             return pairList;
         }
 
 
-        private static PointPairList GetPointsForTriangle(PointPairList pairList, double amplitude, double phase, double frequency, int N, PointPairList synPoints)
+        private  PointPairList GetPointsForTriangle(PointPairList pairList, double amplitude, double phase, double frequency, int N, PointPairList synPoints)
         {
+            var noize = checkBoxNoize.Checked;
+
             for (var index = 0; index <= N; index++)
             {
                 var period = (1 / frequency)*200;
                 var first = amplitude * Math.Asin(Math.Sin(2*Math.PI*index/period))/Math.PI;// (2 * amplitude / Math.PI);
-             
-                
 
+
+                first = noize ? first + NoizeStep : first;
                 pairList.Add(index, first);
             }
             return pairList;
         }
 
-        private static void SetParams(ZedGraphControl zgc)
+        private  void SetParams(ZedGraphControl zgc)
         {
             GraphPane myPane = zgc.GraphPane;
             // Set the titles and axis labels

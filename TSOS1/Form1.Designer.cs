@@ -46,6 +46,7 @@
             this.numericPhaze = new System.Windows.Forms.NumericUpDown();
             this.numericFreqiency = new System.Windows.Forms.NumericUpDown();
             this.numericAmplitude = new System.Windows.Forms.NumericUpDown();
+            this.checkBoxNoize = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar7)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar4)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar5)).BeginInit();
@@ -269,11 +270,22 @@
             0});
             this.numericAmplitude.ValueChanged += new System.EventHandler(this.phazeBar_ValueChanged);
             // 
+            // checkBoxNoize
+            // 
+            this.checkBoxNoize.AutoSize = true;
+            this.checkBoxNoize.Location = new System.Drawing.Point(811, 199);
+            this.checkBoxNoize.Name = "checkBoxNoize";
+            this.checkBoxNoize.Size = new System.Drawing.Size(78, 21);
+            this.checkBoxNoize.TabIndex = 31;
+            this.checkBoxNoize.Text = "Noize ?";
+            this.checkBoxNoize.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1209, 538);
+            this.Controls.Add(this.checkBoxNoize);
             this.Controls.Add(this.numericAmplitude);
             this.Controls.Add(this.numericFreqiency);
             this.Controls.Add(this.numericPhaze);
@@ -325,6 +337,7 @@
         private System.Windows.Forms.NumericUpDown numericPhaze;
         private System.Windows.Forms.NumericUpDown numericFreqiency;
         private System.Windows.Forms.NumericUpDown numericAmplitude;
+        private System.Windows.Forms.CheckBox checkBoxNoize;
     }
 }
 
