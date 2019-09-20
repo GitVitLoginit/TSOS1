@@ -14,6 +14,8 @@ namespace TSOS1
 {
     public partial class Form1 : Form
     {
+        private static Random _random = new Random();
+        private static int NoizeStep { get {return _random.Next(40, 80); } }
         public Form1()
         {
             InitializeComponent();
@@ -69,12 +71,12 @@ namespace TSOS1
             // symbols, and "Porsche" in the legend
             zgc.GraphPane.CurveList.Clear();
             LineItem myCurve = myPane.AddCurve("Parabola",
-               trianglePairs, Color.Blue, SymbolType.Circle);
+               synPairs, Color.Blue, SymbolType.None);
             
       
         }
 
-        private static PointPairList ComputePoints (double amplitude, double phase, double frequency, double N, Signal signal, PointPairList synPoints =null)
+        private static PointPairList ComputePoints (double amplitude, double phase, double frequency, int N, Signal signal, PointPairList synPoints =null)
         {
             PointPairList pairList = new PointPairList();
 
@@ -101,19 +103,32 @@ namespace TSOS1
             return null;
         }
 
-        private static PointPairList GetPointsForSyn(PointPairList pairList, double amplitude, double phase, double frequency, double N)
+        private static PointPairList GetPointsForSyn(PointPairList pairList, double amplitude, double phase, double frequency, int N)
         {
+            //for (var index = 0; index <= N; index++)
+            //{
+            //    var length = (2 * Math.PI * frequency * index) / N ;
+            //    var lengthWihPhase = length + phase;
+            //    var sin = Math.Sin(lengthWihPhase);
+            //    var second = amplitude * sin;
+
+            //    pairList.Add(index, second);
+            //}
+            //return pairList;
+
             for (var index = 0; index <= N; index++)
             {
-                var first = (2 * Math.PI * frequency * index) / N + phase;
-                var second = amplitude * Math.Sin(first);
+                var length = (2 * Math.PI * frequency * index) / N;
+                var lengthWihPhase = length + phase;
+                var sin = Math.Sin(lengthWihPhase);
+                var second = amplitude * sin + NoizeStep;
 
                 pairList.Add(index, second);
             }
             return pairList;
         }
 
-        private static PointPairList GetPointsForSaw(PointPairList pairList, double amplitude, double phase, double frequency, double N, PointPairList synPoints)
+        private static PointPairList GetPointsForSaw(PointPairList pairList, double amplitude, double phase, double frequency, int N, PointPairList synPoints)
         {
             for (var index = 0; index <= N; index++)
             {
@@ -127,21 +142,21 @@ namespace TSOS1
             return pairList;
         }
 
-        private static PointPairList GetPointsForRectangle(PointPairList pairList, double amplitude, double phase, double frequency, double N, PointPairList synPoints)
+        private static PointPairList GetPointsForRectangle(PointPairList pairList, double amplitude, double phase, double frequency, int N, PointPairList synPoints)
         {
             for (var index = 0; index <= N; index++)
             {
-                var first = frequency * index + phase;// (2 * amplitude / Math.PI);
-                var arcSin = (index - (float)Math.Floor(index + 0.5 * frequency)); //Math.Asin(Math.Sin(2 * Math.PI * index * frequency));
-                var second = amplitude * (2*(2*Math.Floor(frequency*index)-2*Math.Floor(2*frequency*index)) + 1);
-                
-                pairList.Add(index, second);
+                var period = (1 / frequency) * 300;
+                var arcTan = amplitude* Math.Sign(Math.Sin(2 * Math.PI * index / period)); //Math.Asin(Math.Sin(2 * Math.PI * index * frequency));
+    
+
+                pairList.Add(index, arcTan);
             }
             return pairList;
         }
 
 
-        private static PointPairList GetPointsForTriangle(PointPairList pairList, double amplitude, double phase, double frequency, double N, PointPairList synPoints)
+        private static PointPairList GetPointsForTriangle(PointPairList pairList, double amplitude, double phase, double frequency, int N, PointPairList synPoints)
         {
             for (var index = 0; index <= N; index++)
             {
