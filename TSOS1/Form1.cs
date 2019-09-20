@@ -8,6 +8,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Media;
+
 using ZedGraph;
 
 namespace TSOS1
@@ -15,7 +17,9 @@ namespace TSOS1
     public partial class Form1 : Form
     {
         private static Random _random = new Random();
-        private static int NoizeStep { get {return _random.Next(-40, 40); } }
+        private static int NoizeStep { get {return _random.Next(-100, 100); } }
+        private SoundPlayer SoundPlayer = new SoundPlayer(@"This.WAV");
+
         public Form1()
         {
             InitializeComponent();
@@ -23,21 +27,15 @@ namespace TSOS1
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            cbSettingsMode1.DataSource = new List<string>() {"Амплитуда и частота потоянные", "Начальная фаза и частота потоянные", "Начальная фаза и амплитуда потоянные" };
+            
+
+            comboBoxSignals.SelectedIndex = 0;
 
             ZedGraphControl zedGraph = zedGraphControl1;
 
             zedGraph.Location = new System.Drawing.Point(0, 0);
             zedGraph.Name = "zedGraph";
             SetParams(zedGraph);
-        }
-
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            //Graphics g = e.Graphics;
-            //Pen myPen = new Pen(Color.Red);
-            //g.Transform = new System.Drawing.Drawing2D.Matrix(1,0,0,-1,0,this.ClientRectangle.Height);
-            //g.DrawLine(myPen, this.ClientRectangle.Left, this.ClientRectangle.Top, this.ClientRectangle.Right, this.ClientRectangle.Bottom);    
 
         }
 
@@ -46,36 +44,37 @@ namespace TSOS1
             DrawGraph(zedGraphControl1);
         }
 
-            private void DrawGraph(ZedGraphControl zgc)
+        private void DrawGraph(ZedGraphControl zgc)
         {        
 
             var N = 4096;
             var amplitude = (int)numericAmplitude.Value;
             var phase  = (int)numericPhaze.Value;
             var frequency = (int)numericFreqiency.Value;
+            var signal = (Signal)comboBoxSignals.SelectedIndex;
 
-            PointPairList synPairs = ComputePoints(amplitude,phase,frequency,N,Signal.syn);
+            WAVClass wAV;
 
-            PointPairList sawPairs = ComputePoints(amplitude, phase, frequency, N, Signal.saw, synPairs);
-
-            PointPairList trianglePairs = ComputePoints(amplitude, phase, frequency, N, Signal.triangle);
-
-            PointPairList recPairs = ComputePoints(amplitude, phase, frequency, N, Signal.rectangle);
+            PointPairList pointPair = ComputePoints(amplitude,phase,frequency,N, signal);
 
             GraphPane myPane = zgc.GraphPane;
 
-
-            // Make up some data arrays based on the Sine function
-
-            // Generate a red curve with diamond
-            // symbols, and "Porsche" in the legend
             zgc.AxisChange();
             zgc.Refresh();
             zgc.GraphPane.CurveList.Clear();
             LineItem myCurve = myPane.AddCurve("Parabola",
-               synPairs, Color.Blue, SymbolType.None);
+               pointPair, Color.Blue, SymbolType.None);
+
+            zgc.AxisChange();
+            zgc.Refresh();
+
+            wAV = new WAVClass();
+            try
+            {
+                wAV.Save(signal, amplitude, frequency, phase);
+            }
+            catch (Exception) { }
             
-      
         }
 
         private  PointPairList ComputePoints (double amplitude, double phase, double frequency, int N, Signal signal, PointPairList synPoints =null)
@@ -91,15 +90,15 @@ namespace TSOS1
                     }
                 case Signal.saw:
                     {
-                        return GetPointsForSaw(pairList, amplitude, phase, frequency, N,synPoints);
+                        return GetPointsForSaw(pairList, amplitude, phase, frequency, N);
                     }
                 case Signal.triangle:
                     {
-                        return GetPointsForTriangle(pairList, amplitude, phase, frequency, N, synPoints);
+                        return GetPointsForTriangle(pairList, amplitude, phase, frequency, N);
                     }
                 case Signal.rectangle:
                     {
-                        return GetPointsForRectangle(pairList, amplitude, phase, frequency, N, synPoints);
+                        return GetPointsForRectangle(pairList, amplitude, phase, frequency, N);
                     }
             }
             return null;
@@ -131,7 +130,7 @@ namespace TSOS1
             return pairList;
         }
 
-        private  PointPairList GetPointsForSaw(PointPairList pairList, double amplitude, double phase, double frequency, int N, PointPairList synPoints)
+        private  PointPairList GetPointsForSaw(PointPairList pairList, double amplitude, double phase, double frequency, int N)
         {
             var noize = checkBoxNoize.Checked;
 
@@ -139,7 +138,7 @@ namespace TSOS1
             {
                 var period = (1 / frequency)*200;
                 var first = (-2*amplitude)/Math.PI;// (2 * amplitude / Math.PI);
-                var arcTan = Math.Atan(1/(Math.Tan(index*Math.PI/period))); //Math.Asin(Math.Sin(2 * Math.PI * index * frequency));
+                var arcTan = Math.Atan(1/(Math.Tan(index*Math.PI/period + phase))); //Math.Asin(Math.Sin(2 * Math.PI * index * frequency));
                 var second = first * arcTan;
                 second = noize ? second + NoizeStep : second;
                 pairList.Add(index, second);
@@ -147,14 +146,14 @@ namespace TSOS1
             return pairList;
         }
 
-        private  PointPairList GetPointsForRectangle(PointPairList pairList, double amplitude, double phase, double frequency, int N, PointPairList synPoints)
+        private  PointPairList GetPointsForRectangle(PointPairList pairList, double amplitude, double phase, double frequency, int N)
         {
             var noize = checkBoxNoize.Checked;
 
             for (var index = 0; index <= N; index++)
             {
                 var period = (1 / frequency) * 300;
-                var arcTan = amplitude* Math.Sign(Math.Sin(2 * Math.PI * index / period)); //Math.Asin(Math.Sin(2 * Math.PI * index * frequency));
+                var arcTan = amplitude* Math.Sign(Math.Sin(2 * Math.PI * index / period + phase)); //Math.Asin(Math.Sin(2 * Math.PI * index * frequency));
 
                 arcTan = noize ? arcTan + NoizeStep : arcTan;
                 pairList.Add(index, arcTan);
@@ -163,14 +162,14 @@ namespace TSOS1
         }
 
 
-        private  PointPairList GetPointsForTriangle(PointPairList pairList, double amplitude, double phase, double frequency, int N, PointPairList synPoints)
+        private  PointPairList GetPointsForTriangle(PointPairList pairList, double amplitude, double phase, double frequency, int N)
         {
             var noize = checkBoxNoize.Checked;
 
             for (var index = 0; index <= N; index++)
             {
                 var period = (1 / frequency)*200;
-                var first = amplitude * Math.Asin(Math.Sin(2*Math.PI*index/period))/Math.PI;// (2 * amplitude / Math.PI);
+                var first = amplitude * Math.Asin(Math.Sin(2*Math.PI*index/period + phase))/Math.PI;// (2 * amplitude / Math.PI);
 
 
                 first = noize ? first + NoizeStep : first;
@@ -203,31 +202,24 @@ namespace TSOS1
         {
             CreateField();
         }
-
-        private void trackBar7_ValueChanged(object sender, EventArgs e)
-        {
-            label7.Text = trackBar7.Value.ToString();
-        }
-
-        private void trackBar4_ValueChanged(object sender, EventArgs e)
-        {
-            label4.Text = trackBar4.Value.ToString();
-        }
-
-        private void trackBar5_ValueChanged(object sender, EventArgs e)
-        {
-            label5.Text = trackBar5.Value.ToString();
-        }
-
-        private void trackBar6_ValueChanged(object sender, EventArgs e)
-        {
-            label6.Text = trackBar6.Value.ToString();
-        }
+     
 
         private void phazeBar_ValueChanged(object sender, EventArgs e)
         {
             CreateField();
         }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+
+            SoundPlayer.Stop();
+            SoundPlayer.PlayLooping();
      
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            SoundPlayer.Stop();
+        }
     }
 }

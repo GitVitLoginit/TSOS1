@@ -9,8 +9,8 @@ namespace TSOS1
     public enum Signal
     {
         syn,
-        saw,
+        rectangle,
         triangle,
-        rectangle
+        saw
     }
 }
