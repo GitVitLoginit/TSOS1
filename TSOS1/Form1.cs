@@ -29,6 +29,7 @@ namespace TSOS1
 
             zedGraph.Location = new System.Drawing.Point(0, 0);
             zedGraph.Name = "zedGraph";
+            SetParams(zedGraph);
         }
 
         protected override void OnPaint(PaintEventArgs e)
@@ -46,10 +47,9 @@ namespace TSOS1
         }
 
             private void DrawGraph(ZedGraphControl zgc)
-        {
-            SetParams(zgc);
+        {        
 
-            var N = 512;
+            var N = 4096;
             var amplitude = (int)numericAmplitude.Value;
             var phase  = (int)numericPhaze.Value;
             var frequency = (int)numericFreqiency.Value;
@@ -69,6 +69,8 @@ namespace TSOS1
 
             // Generate a red curve with diamond
             // symbols, and "Porsche" in the legend
+            zgc.AxisChange();
+            zgc.Refresh();
             zgc.GraphPane.CurveList.Clear();
             LineItem myCurve = myPane.AddCurve("Parabola",
                synPairs, Color.Blue, SymbolType.None);
