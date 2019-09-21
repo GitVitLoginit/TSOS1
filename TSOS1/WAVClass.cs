@@ -10,6 +10,9 @@ namespace TSOS1
 {
    public class WAVClass
    {
+        private static Random _random = new Random();
+        private static int NoizeStep { get { return _random.Next(-1000, 1000); } }
+
         private class WaveHeader
         {
             public string sGroupID;
@@ -22,7 +25,7 @@ namespace TSOS1
                 sGroupID = "RIFF";
                 sRiffType = "WAVE";
             }
-
+      
         }
 
         private class WaveFormatChunk
@@ -75,7 +78,7 @@ namespace TSOS1
             int Frequency;
             int Phaze;
 
-            public WaveGenerator(Signal type,int amplitude, int frequency, int phaze)
+            public WaveGenerator(Signal type,int amplitude, int frequency, int phaze,bool noize)
             {
                 header = new WaveHeader();
                 format = new WaveFormatChunk();
@@ -99,6 +102,8 @@ namespace TSOS1
                             for (int channel = 0; channel < format.wChannels; channel++)
                             {
                                 data.shortArray[i + channel] = Convert.ToInt16(Amplitude * Math.Sin(t * i + Phaze));
+                                data.shortArray[i + channel] = noize ? Convert.ToInt16(data.shortArray[i + channel] + NoizeStep) : data.shortArray[i + channel];
+
                             }
                         }
                         data.dwChunkSize = (uint)(data.shortArray.Length * (format.wBitsPerSample / 8));
@@ -114,6 +119,7 @@ namespace TSOS1
                             {
                                 sinValue = (2 * Math.PI * Frequency)/(format.dwSamplesPerSec * format.wChannels);
                                 data.shortArray[i + channel] = Convert.ToInt16(amplitude * Math.Sign(Math.Sin((i * sinValue + phaze))));
+                                data.shortArray[i + channel] = noize ? Convert.ToInt16(data.shortArray[i + channel] + NoizeStep) : data.shortArray[i + channel];
                             }
                         }
                         data.dwChunkSize = (uint)(data.shortArray.Length * (format.wBitsPerSample / 8));
@@ -130,6 +136,7 @@ namespace TSOS1
 
                                 sinValue = (2 * Math.PI * Frequency) / (format.dwSamplesPerSec * format.wChannels);
                                 data.shortArray[i + channel] = Convert.ToInt16(amplitude * Math.Asin(Math.Sin((i * sinValue + phaze))));
+                                data.shortArray[i + channel] = noize ? Convert.ToInt16(data.shortArray[i + channel] + NoizeStep) : data.shortArray[i + channel];
                             }
                         }
                         data.dwChunkSize = (uint)(data.shortArray.Length * (format.wBitsPerSample / 8));
@@ -146,6 +153,7 @@ namespace TSOS1
 
                                 sinValue = (Math.PI * Frequency) / (format.dwSamplesPerSec * format.wChannels);
                                 data.shortArray[i + channel] = Convert.ToInt16(-2*amplitude/Math.PI * Math.Atan(1/Math.Tan((i * sinValue + phaze))));
+                                data.shortArray[i + channel] = noize ? Convert.ToInt16(data.shortArray[i + channel] + NoizeStep) : data.shortArray[i + channel];
                             }
                         }
                         data.dwChunkSize = (uint)(data.shortArray.Length * (format.wBitsPerSample / 8));
@@ -206,9 +214,10 @@ namespace TSOS1
             }
         }
 
-     public void Save(Signal signalType,int amplitude,int frequency,int phaze)
+     public void Save(Signal signalType,int amplitude,int frequency,int phaze,bool noize)
      {
-            WaveGenerator waveGenerator = new WaveGenerator(signalType, amplitude, frequency, phaze);
+            
+            WaveGenerator waveGenerator = new WaveGenerator(signalType, amplitude, frequency, phaze, noize);
 
             waveGenerator.SaveWAV(@"This.WAV");
                    

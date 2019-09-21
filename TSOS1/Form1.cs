@@ -17,7 +17,8 @@ namespace TSOS1
     public partial class Form1 : Form
     {
         private static Random _random = new Random();
-        private static int NoizeStep { get {return _random.Next(-100, 100); } }
+        private static int NoizeStep { get {return _random.Next(-1000, 1000); } }
+
         private SoundPlayer SoundPlayer = new SoundPlayer(@"This.WAV");
 
         public Form1()
@@ -27,16 +28,11 @@ namespace TSOS1
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            
-
-            comboBoxSignals.SelectedIndex = 0;
-
             ZedGraphControl zedGraph = zedGraphControl1;
 
-            zedGraph.Location = new System.Drawing.Point(0, 0);
-            zedGraph.Name = "zedGraph";
+            comboBoxSignals.SelectedIndex = 0; 
+            zedGraph.Name = "Graphic";
             SetParams(zedGraph);
-
         }
 
         private void CreateField()
@@ -45,15 +41,14 @@ namespace TSOS1
         }
 
         private void DrawGraph(ZedGraphControl zgc)
-        {        
+        {
+            WAVClass wAV;
 
             var N = 4096;
             var amplitude = (int)numericAmplitude.Value;
             var phase  = (int)numericPhaze.Value;
             var frequency = (int)numericFreqiency.Value;
             var signal = (Signal)comboBoxSignals.SelectedIndex;
-
-            WAVClass wAV;
 
             PointPairList pointPair = ComputePoints(amplitude,phase,frequency,N, signal);
 
@@ -62,7 +57,7 @@ namespace TSOS1
             zgc.AxisChange();
             zgc.Refresh();
             zgc.GraphPane.CurveList.Clear();
-            LineItem myCurve = myPane.AddCurve("Parabola",
+            LineItem myCurve = myPane.AddCurve(signal.ToString(),
                pointPair, Color.Blue, SymbolType.None);
 
             zgc.AxisChange();
@@ -71,7 +66,7 @@ namespace TSOS1
             wAV = new WAVClass();
             try
             {
-                wAV.Save(signal, amplitude, frequency, phase);
+                wAV.Save(signal, amplitude, frequency, phase,checkBoxNoize.Checked);
             }
             catch (Exception) { }
             

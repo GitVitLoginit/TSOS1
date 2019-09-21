@@ -59,7 +59,7 @@
             // 
             // zedGraphControl1
             // 
-            this.zedGraphControl1.Location = new System.Drawing.Point(26, 25);
+            this.zedGraphControl1.Location = new System.Drawing.Point(0, 0);
             this.zedGraphControl1.Name = "zedGraphControl1";
             this.zedGraphControl1.ScrollGrace = 0D;
             this.zedGraphControl1.ScrollMaxX = 0D;
@@ -68,7 +68,7 @@
             this.zedGraphControl1.ScrollMinX = 0D;
             this.zedGraphControl1.ScrollMinY = 0D;
             this.zedGraphControl1.ScrollMinY2 = 0D;
-            this.zedGraphControl1.Size = new System.Drawing.Size(1183, 402);
+            this.zedGraphControl1.Size = new System.Drawing.Size(1221, 427);
             this.zedGraphControl1.TabIndex = 24;
             this.zedGraphControl1.UseExtendedPrintDialog = true;
             // 
@@ -131,7 +131,7 @@
             this.numericFreqiency.Location = new System.Drawing.Point(608, 483);
             this.numericFreqiency.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.numericFreqiency.Maximum = new decimal(new int[] {
-            10000,
+            20000,
             0,
             0,
             0});
@@ -262,10 +262,10 @@
         private System.Windows.Forms.NumericUpDown numericPhaze;
         private System.Windows.Forms.NumericUpDown numericFreqiency;
         private System.Windows.Forms.NumericUpDown numericAmplitude;
-        private System.Windows.Forms.CheckBox checkBoxNoize;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.ComboBox comboBoxSignals;
         private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.CheckBox checkBoxNoize;
     }
 }
 
