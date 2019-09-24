@@ -8,9 +8,24 @@ namespace TSOS1
 {
     public enum Signal
     {
+        
         syn,
         rectangle,
         triangle,
-        saw
+        saw,
+        SinSaw,
+        SinRect,
+        SinTriangle,
+        SawRect,
+        SinRectSaw,
+        RectTriangleSaw
+    }
+
+    public enum parameter
+    {
+
+        amp,
+        fre,
+        phase
     }
 }

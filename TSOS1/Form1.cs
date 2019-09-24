@@ -16,6 +16,8 @@ namespace TSOS1
 {
     public partial class Form1 : Form
     {
+        private static double inc = 1;
+
         private static Random _random = new Random();
         private static int NoizeStep { get {return _random.Next(-1000, 1000); } }
 
@@ -95,6 +97,30 @@ namespace TSOS1
                     {
                         return GetPointsForRectangle(pairList, amplitude, phase, frequency, N);
                     }
+                case Signal.SinRect:
+                    {
+                        return GetPointsForPoliSignal(pairList, amplitude, phase, frequency, N,Signal.syn,Signal.rectangle);
+                    }
+                case Signal.SinSaw:
+                    {
+                        return GetPointsForPoliSignal(pairList, amplitude, phase, frequency, N, Signal.syn, Signal.saw);
+                    }
+                case Signal.SinTriangle:
+                    {
+                        return GetPointsForPoliSignal(pairList, amplitude, phase, frequency, N, Signal.syn, Signal.triangle);
+                    }
+                case Signal.SawRect:
+                    {
+                        return GetPointsForPoliSignal(pairList, amplitude, phase, frequency, N,Signal.saw,Signal.rectangle);
+                    }
+                case Signal.SinRectSaw:
+                    {
+                        return GetPointsForPoliSignal(pairList, amplitude, phase, frequency, N, Signal.syn, Signal.rectangle,Signal.saw);
+                    }
+                case Signal.RectTriangleSaw:
+                    {
+                        return GetPointsForPoliSignal(pairList, amplitude, phase, frequency, N, Signal.saw, Signal.rectangle,Signal.triangle);
+                    }
             }
             return null;
         }
@@ -102,16 +128,6 @@ namespace TSOS1
         private  PointPairList GetPointsForSyn(PointPairList pairList, double amplitude, double phase, double frequency, int N)
         {
             var noize = checkBoxNoize.Checked;
-                       //for (var index = 0; index <= N; index++)
-            //{
-            //    var length = (2 * Math.PI * frequency * index) / N ;
-            //    var lengthWihPhase = length + phase;
-            //    var sin = Math.Sin(lengthWihPhase);
-            //    var second = amplitude * sin;
-
-            //    pairList.Add(index, second);
-            //}
-            //return pairList;
 
             for (var index = 0; index <= N; index++)
             {
@@ -121,9 +137,100 @@ namespace TSOS1
                 var y = amplitude * sin;
                 y = noize ? y + NoizeStep : y;
                 pairList.Add(index, y);
+
+
+                //amplitude = UpdateValue(amplitude, parameter.amp);
+                //phase = UpdateValue(phase, parameter.phase);
+                //frequency = UpdateValue(frequency, parameter.fre);
             }
             return pairList;
         }
+
+        private PointPairList GetPointsForPoliSyn(PointPairList pairList, double amplitude, double phase, double frequency, int N)
+        {
+            var noize = checkBoxNoize.Checked;
+
+            for (var index = 0; index <= N; index++)
+            {
+                double sum = 0;
+                
+                for (var y1 = 1; y1 <= 20; y1++)
+                {
+                    var length = (2 * Math.PI * frequency * index) / N;
+                    var lengthWihPhase = length + phase;
+                    var sin = Math.Sin(lengthWihPhase);
+                    var y = amplitude * sin;
+                    y = noize ? y + NoizeStep : y;
+                    sum += y;
+                }
+
+                pairList.Add(index, sum);
+            }
+            return pairList;
+        }
+
+        private PointPairList GetPointsForPoliSignal(PointPairList pairList, double amplitude, double phase, double frequency, int N, Signal firstSignal, Signal secondSignal, Signal? thirdSignal=null)
+        {
+            var noize = checkBoxNoize.Checked;
+
+            var first = ComputePoints( amplitude, phase, frequency,N, firstSignal);
+
+            var second = ComputePoints(amplitude, phase, frequency, N, secondSignal);
+
+            if (thirdSignal == null)
+            {
+                for (var index = 0; index <= N; index++)
+                {
+                    first[index].Y = first[index].Y + second[index].Y;
+                }
+                return first;
+            }
+            var third = ComputePoints(amplitude, phase, frequency, N, thirdSignal.Value);
+
+            for (var index = 0; index <= N; index++)
+            {
+                first[index].Y = first[index].Y + second[index].Y+ third[index].Y;
+            }
+                //for (var index = 0; index <= N; index++)
+                //{
+                //    double sum = 0;
+
+                //    for (var y1 = 1; y1 <= 5; y1++)
+                //    {
+                //        var first = Math.Pow(-1, y1 + 1)/y1;
+                //        var second = first * Math.Sin(((2 * Math.PI * index) * frequency ));
+
+
+                //        sum += amplitude*second;
+                //    }
+                //    var third = (2 / Math.PI) * sum;
+                //    pairList.Add(index, third);
+                //}
+
+
+                return first;
+        }
+
+        public double UpdateValue(double value, parameter par)
+        {
+            bool needBeUpdated=false;
+            switch (par){
+                case parameter.amp:
+                    needBeUpdated=checkBoxAmp.Checked;
+                    break;
+                case parameter.fre:
+                    needBeUpdated = checkBoxAmp.Checked;
+                    break;
+                case parameter.phase:
+                    needBeUpdated = checkBoxAmp.Checked;
+                    break;
+            }
+            if (!needBeUpdated) return value;
+
+            var increase = comboBoxInDec.SelectedIndex == 0;
+            return increase ? value + inc : value - inc;
+        }
+        
 
         private  PointPairList GetPointsForSaw(PointPairList pairList, double amplitude, double phase, double frequency, int N)
         {
@@ -215,6 +322,26 @@ namespace TSOS1
         private void button3_Click(object sender, EventArgs e)
         {
             SoundPlayer.Stop();
+        }
+
+        private void comboBoxSignals_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void comboBoxInDec_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void zedGraphControl1_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }
