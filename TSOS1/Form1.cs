@@ -17,9 +17,9 @@ namespace TSOS1
     public partial class Form1 : Form
     {
         private static double inc = 1;
-
+        private static double scal = 500;
         private static Random _random = new Random();
-        private static int NoizeStep { get {return _random.Next(-1000, 1000); } }
+        private static int NoizeStep { get {return _random.Next(-10, 10); } }
 
         private SoundPlayer SoundPlayer = new SoundPlayer(@"This.WAV");
 
@@ -121,6 +121,10 @@ namespace TSOS1
                     {
                         return GetPointsForPoliSignal(pairList, amplitude, phase, frequency, N, Signal.saw, Signal.rectangle,Signal.triangle);
                     }
+                case Signal.SinRectTriangleSaw:
+                    {
+                        return GetPointsForPoliSignal(pairList, amplitude, phase, frequency, N, Signal.syn, Signal.saw, Signal.rectangle, Signal.triangle);
+                    }
             }
             return null;
         }
@@ -156,7 +160,7 @@ namespace TSOS1
                 
                 for (var y1 = 1; y1 <= 20; y1++)
                 {
-                    var length = (2 * Math.PI * frequency * index) / N;
+                    var length = (2 * Math.PI * frequency*scal/(index)) / N;
                     var lengthWihPhase = length + phase;
                     var sin = Math.Sin(lengthWihPhase);
                     var y = amplitude * sin;
@@ -169,13 +173,14 @@ namespace TSOS1
             return pairList;
         }
 
-        private PointPairList GetPointsForPoliSignal(PointPairList pairList, double amplitude, double phase, double frequency, int N, Signal firstSignal, Signal secondSignal, Signal? thirdSignal=null)
+        private PointPairList GetPointsForPoliSignal(PointPairList pairList, double amplitude, double phase, double frequency, int N, Signal firstSignal, Signal secondSignal, Signal? thirdSignal=null, Signal? fourthSignal = null)
         {
             var noize = checkBoxNoize.Checked;
 
+     
             var first = ComputePoints( amplitude, phase, frequency,N, firstSignal);
 
-            var second = ComputePoints(amplitude, phase, frequency, N, secondSignal);
+            var second = ComputePoints(amplitude, phase, (Int32.Parse(SecondFrequency.Value.ToString())), N, secondSignal);
 
             if (thirdSignal == null)
             {
@@ -185,30 +190,42 @@ namespace TSOS1
                 }
                 return first;
             }
-            var third = ComputePoints(amplitude, phase, frequency, N, thirdSignal.Value);
+            var third = ComputePoints(amplitude, phase, (Int32.Parse(SecondFrequency.Value.ToString())), N, thirdSignal.Value);
 
             for (var index = 0; index <= N; index++)
             {
                 first[index].Y = first[index].Y + second[index].Y+ third[index].Y;
             }
-                //for (var index = 0; index <= N; index++)
-                //{
-                //    double sum = 0;
 
-                //    for (var y1 = 1; y1 <= 5; y1++)
-                //    {
-                //        var first = Math.Pow(-1, y1 + 1)/y1;
-                //        var second = first * Math.Sin(((2 * Math.PI * index) * frequency ));
+            if (fourthSignal == null)
+            {
+                var fouth = ComputePoints(amplitude, phase, (Int32.Parse(SecondFrequency.Value.ToString())), N, thirdSignal.Value);
 
-
-                //        sum += amplitude*second;
-                //    }
-                //    var third = (2 / Math.PI) * sum;
-                //    pairList.Add(index, third);
-                //}
-
+                for (var index = 0; index <= N; index++)
+                {
+                    first[index].Y = first[index].Y + fouth[index].Y;
+                }
 
                 return first;
+            }
+            //for (var index = 0; index <= N; index++)
+            //{
+            //    double sum = 0;
+
+            //    for (var y1 = 1; y1 <= 5; y1++)
+            //    {
+            //        var first = Math.Pow(-1, y1 + 1)/y1;
+            //        var second = first * Math.Sin(((2 * Math.PI * index) * frequency ));
+
+
+            //        sum += amplitude*second;
+            //    }
+            //    var third = (2 / Math.PI) * sum;
+            //    pairList.Add(index, third);
+            //}
+
+
+            return first;
         }
 
         public double UpdateValue(double value, parameter par)
@@ -238,7 +255,8 @@ namespace TSOS1
 
             for (var index = 0; index <= N; index++)
             {
-                var period = (1 / frequency)*200;
+                var period = (1 / frequency) * scal;
+
                 var first = (-2*amplitude)/Math.PI;// (2 * amplitude / Math.PI);
                 var arcTan = Math.Atan(1/(Math.Tan(index*Math.PI/period + phase))); //Math.Asin(Math.Sin(2 * Math.PI * index * frequency));
                 var second = first * arcTan;
@@ -254,7 +272,9 @@ namespace TSOS1
 
             for (var index = 0; index <= N; index++)
             {
-                var period = (1 / frequency) * 300;
+
+                var period = (1 / frequency) * scal;
+
                 var arcTan = amplitude* Math.Sign(Math.Sin(2 * Math.PI * index / period + phase)); //Math.Asin(Math.Sin(2 * Math.PI * index * frequency));
 
                 arcTan = noize ? arcTan + NoizeStep : arcTan;
@@ -270,7 +290,8 @@ namespace TSOS1
 
             for (var index = 0; index <= N; index++)
             {
-                var period = (1 / frequency)*200;
+                var period = (1 / frequency) * scal;
+
                 var first = amplitude * Math.Asin(Math.Sin(2*Math.PI*index/period + phase))/Math.PI;// (2 * amplitude / Math.PI);
 
 

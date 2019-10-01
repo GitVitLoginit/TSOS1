@@ -46,9 +46,12 @@
             this.checkBoxFre = new System.Windows.Forms.CheckBox();
             this.checkBoxPhaze = new System.Windows.Forms.CheckBox();
             this.comboBoxInDec = new System.Windows.Forms.ComboBox();
+            this.SecondFrequency = new System.Windows.Forms.NumericUpDown();
+            this.label2 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.numericPhaze)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericFreqiency)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericAmplitude)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.SecondFrequency)).BeginInit();
             this.SuspendLayout();
             // 
             // button1
@@ -288,11 +291,45 @@
             this.comboBoxInDec.TabIndex = 39;
             this.comboBoxInDec.SelectedIndexChanged += new System.EventHandler(this.comboBoxInDec_SelectedIndexChanged);
             // 
+            // SecondFrequency
+            // 
+            this.SecondFrequency.Location = new System.Drawing.Point(998, 594);
+            this.SecondFrequency.Maximum = new decimal(new int[] {
+            20000,
+            0,
+            0,
+            0});
+            this.SecondFrequency.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.SecondFrequency.Name = "SecondFrequency";
+            this.SecondFrequency.Size = new System.Drawing.Size(120, 22);
+            this.SecondFrequency.TabIndex = 40;
+            this.SecondFrequency.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.SecondFrequency.ValueChanged += new System.EventHandler(this.phazeBar_ValueChanged);
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(1011, 574);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(87, 17);
+            this.label2.TabIndex = 41;
+            this.label2.Text = "Frequency 2";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1628, 839);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.SecondFrequency);
             this.Controls.Add(this.comboBoxInDec);
             this.Controls.Add(this.checkBoxPhaze);
             this.Controls.Add(this.checkBoxFre);
@@ -318,6 +355,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.numericPhaze)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericFreqiency)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericAmplitude)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.SecondFrequency)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -342,6 +380,8 @@
         private System.Windows.Forms.CheckBox checkBoxFre;
         private System.Windows.Forms.CheckBox checkBoxPhaze;
         private System.Windows.Forms.ComboBox comboBoxInDec;
+        private System.Windows.Forms.NumericUpDown SecondFrequency;
+        private System.Windows.Forms.Label label2;
     }
 }
 

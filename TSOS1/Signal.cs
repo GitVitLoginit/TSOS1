@@ -18,7 +18,8 @@ namespace TSOS1
         SinTriangle,
         SawRect,
         SinRectSaw,
-        RectTriangleSaw
+        RectTriangleSaw,
+        SinRectTriangleSaw
     }
 
     public enum parameter
