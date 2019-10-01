@@ -31,6 +31,7 @@ namespace TSOS1
         private void Form1_Load(object sender, EventArgs e)
         {
             ZedGraphControl zedGraph = zedGraphControl1;
+            radioButtonFrequency.Checked = true;
 
             comboBoxSignals.SelectedIndex = 0; 
             zedGraph.Name = "Graphic";
@@ -119,11 +120,11 @@ namespace TSOS1
                     }
                 case Signal.RectTriangleSaw:
                     {
-                        return GetPointsForPoliSignal(pairList, amplitude, phase, frequency, N, Signal.saw, Signal.rectangle,Signal.triangle);
+                        return GetPointsForPoliSignal(pairList, amplitude, phase, frequency, N, Signal.rectangle, Signal.triangle, Signal.saw);
                     }
                 case Signal.SinRectTriangleSaw:
                     {
-                        return GetPointsForPoliSignal(pairList, amplitude, phase, frequency, N, Signal.syn, Signal.saw, Signal.rectangle, Signal.triangle);
+                        return GetPointsForPoliSignal(pairList, amplitude, phase, frequency, N, Signal.syn, Signal.rectangle, Signal.triangle, Signal.saw);
                     }
             }
             return null;
@@ -177,36 +178,70 @@ namespace TSOS1
         {
             var noize = checkBoxNoize.Checked;
 
-     
-            var first = ComputePoints( amplitude, phase, frequency,N, firstSignal);
+            var first = ComputePoints(amplitude, phase, frequency, N, firstSignal);
 
-            var second = ComputePoints(amplitude, phase, (Int32.Parse(SecondFrequency.Value.ToString())), N, secondSignal);
-
-            if (thirdSignal == null)
+            if (radioButtonFrequency.Checked)
             {
-                for (var index = 0; index <= N; index++)
+                var second = ComputePoints(amplitude, phase, (Int32.Parse(SecondFrequency.Value.ToString())), N, secondSignal);
+
+                if (thirdSignal == null)
                 {
-                    first[index].Y = first[index].Y + second[index].Y;
+                    for (var index = 0; index <= N; index++)
+                    {
+                        first[index].Y = first[index].Y + second[index].Y;
+                    }
+                    return first;
                 }
-                return first;
-            }
-            var third = ComputePoints(amplitude, phase, (Int32.Parse(SecondFrequency.Value.ToString())), N, thirdSignal.Value);
-
-            for (var index = 0; index <= N; index++)
-            {
-                first[index].Y = first[index].Y + second[index].Y+ third[index].Y;
-            }
-
-            if (fourthSignal == null)
-            {
-                var fouth = ComputePoints(amplitude, phase, (Int32.Parse(SecondFrequency.Value.ToString())), N, thirdSignal.Value);
+                var third = ComputePoints(amplitude, phase, (Int32.Parse(ThirdFrequency.Value.ToString())), N, thirdSignal.Value);
 
                 for (var index = 0; index <= N; index++)
                 {
-                    first[index].Y = first[index].Y + fouth[index].Y;
+                    first[index].Y = first[index].Y + second[index].Y + third[index].Y;
                 }
 
-                return first;
+                if (fourthSignal != null)
+                {
+                    var fourth = ComputePoints(amplitude, phase, (Int32.Parse(FourthFrequency.Value.ToString())), N, fourthSignal.Value);
+
+                    for (var index = 0; index <= N; index++)
+                    {
+                        first[index].Y = first[index].Y + fourth[index].Y;
+                    }
+
+                    return first;
+                }
+            }
+            else
+            {
+                var second = ComputePoints((Int32.Parse(Amplitude2.Value.ToString())), phase, frequency, N, secondSignal);
+
+                if (thirdSignal == null)
+                {
+                    for (var index = 0; index <= N; index++)
+                    {
+                        first[index].Y = first[index].Y + second[index].Y;
+                    }
+                    return first;
+                }
+                var third = ComputePoints((Int32.Parse(Amplitude3.Value.ToString())), phase, frequency, N, thirdSignal.Value);
+
+                for (var index = 0; index <= N; index++)
+                {
+                    first[index].Y = first[index].Y + second[index].Y + third[index].Y;
+                }
+
+                if (fourthSignal != null)
+                {
+                    var fourth = ComputePoints((Int32.Parse(Amplitude4.Value.ToString())), phase, frequency, N, fourthSignal.Value);
+
+                    for (var index = 0; index <= N; index++)
+                    {
+                        first[index].Y = first[index].Y + fourth[index].Y;
+                    }
+
+                    return first;
+                }
+
             }
             //for (var index = 0; index <= N; index++)
             //{
@@ -228,27 +263,7 @@ namespace TSOS1
             return first;
         }
 
-        public double UpdateValue(double value, parameter par)
-        {
-            bool needBeUpdated=false;
-            switch (par){
-                case parameter.amp:
-                    needBeUpdated=checkBoxAmp.Checked;
-                    break;
-                case parameter.fre:
-                    needBeUpdated = checkBoxAmp.Checked;
-                    break;
-                case parameter.phase:
-                    needBeUpdated = checkBoxAmp.Checked;
-                    break;
-            }
-            if (!needBeUpdated) return value;
-
-            var increase = comboBoxInDec.SelectedIndex == 0;
-            return increase ? value + inc : value - inc;
-        }
-        
-
+            
         private  PointPairList GetPointsForSaw(PointPairList pairList, double amplitude, double phase, double frequency, int N)
         {
             var noize = checkBoxNoize.Checked;
@@ -355,10 +370,6 @@ namespace TSOS1
 
         }
 
-        private void comboBoxInDec_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
 
         private void zedGraphControl1_Load(object sender, EventArgs e)
         {
