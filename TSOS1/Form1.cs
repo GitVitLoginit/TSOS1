@@ -132,44 +132,48 @@ namespace TSOS1
 
         private  PointPairList GetPointsForSyn(PointPairList pairList, double amplitude, double phase, double frequency, int N)
         {
+            //PointPairList pairList2 = new PointPairList();
+            ////GetPointsForPoliSyn(pairList2,amplitude, phase, Int32.Parse(SecondFrequency.Value.ToString()), N);
+            //GetPointsForPoliSyn(pairList2, Int32.Parse(Amplitude2.Value.ToString()), phase, Int32.Parse(SecondFrequency.Value.ToString()), N);
+            PointPairList pairList2 = new PointPairList();
+            //GetPointsForPoliSyn(pairList2,amplitude, phase, Int32.Parse(SecondFrequency.Value.ToString()), N);
+            GetPointsForRectangle(pairList2, Int32.Parse(Amplitude2.Value.ToString()), phase, Int32.Parse(SecondFrequency.Value.ToString()), N);
             var noize = checkBoxNoize.Checked;
 
             for (var index = 0; index <= N; index++)
             {
+                amplitude = pairList2[index].Y;
                 var length = (2 * Math.PI * frequency * index) / N;
                 var lengthWihPhase = length + phase;
                 var sin = Math.Sin(lengthWihPhase);
                 var y = amplitude * sin;
                 y = noize ? y + NoizeStep : y;
                 pairList.Add(index, y);
-
-
                 //amplitude = UpdateValue(amplitude, parameter.amp);
                 //phase = UpdateValue(phase, parameter.phase);
                 //frequency = UpdateValue(frequency, parameter.fre);
             }
+
+
+
             return pairList;
         }
 
         private PointPairList GetPointsForPoliSyn(PointPairList pairList, double amplitude, double phase, double frequency, int N)
         {
             var noize = checkBoxNoize.Checked;
-
             for (var index = 0; index <= N; index++)
             {
-                double sum = 0;
-                
-                for (var y1 = 1; y1 <= 20; y1++)
-                {
-                    var length = (2 * Math.PI * frequency*scal/(index)) / N;
-                    var lengthWihPhase = length + phase;
-                    var sin = Math.Sin(lengthWihPhase);
-                    var y = amplitude * sin;
-                    y = noize ? y + NoizeStep : y;
-                    sum += y;
-                }
-
-                pairList.Add(index, sum);
+               
+                var length = (2 * Math.PI * frequency * index) / N;
+                var lengthWihPhase = length + phase;
+                var sin = Math.Sin(lengthWihPhase);
+                var y = amplitude * sin;
+                y = noize ? y + NoizeStep : y;
+                pairList.Add(index, y);
+                //amplitude = UpdateValue(amplitude, parameter.amp);
+                //phase = UpdateValue(phase, parameter.phase);
+                //frequency = UpdateValue(frequency, parameter.fre);
             }
             return pairList;
         }
@@ -266,12 +270,17 @@ namespace TSOS1
             
         private  PointPairList GetPointsForSaw(PointPairList pairList, double amplitude, double phase, double frequency, int N)
         {
+            PointPairList pairList2 = new PointPairList();
+            //GetPointsForPoliSyn(pairList2,amplitude, phase, Int32.Parse(SecondFrequency.Value.ToString()), N);
+            GetPointsForPoliSyn(pairList2, Int32.Parse(Amplitude2.Value.ToString()), phase, Int32.Parse(SecondFrequency.Value.ToString()), N);
+
+
             var noize = checkBoxNoize.Checked;
 
             for (var index = 0; index <= N; index++)
             {
                 var period = (1 / frequency) * scal;
-
+                amplitude = pairList2[index].Y;
                 var first = (-2*amplitude)/Math.PI;// (2 * amplitude / Math.PI);
                 var arcTan = Math.Atan(1/(Math.Tan(index*Math.PI/period + phase))); //Math.Asin(Math.Sin(2 * Math.PI * index * frequency));
                 var second = first * arcTan;
@@ -283,11 +292,15 @@ namespace TSOS1
 
         private  PointPairList GetPointsForRectangle(PointPairList pairList, double amplitude, double phase, double frequency, int N)
         {
+            //PointPairList pairList2 = new PointPairList();
+            ////GetPointsForPoliSyn(pairList2,amplitude, phase, Int32.Parse(SecondFrequency.Value.ToString()), N);
+            //GetPointsForPoliSyn(pairList2, Int32.Parse(Amplitude2.Value.ToString()), phase, Int32.Parse(SecondFrequency.Value.ToString()), N);
+
             var noize = checkBoxNoize.Checked;
 
             for (var index = 0; index <= N; index++)
             {
-
+                //amplitude = pairList2[index].Y;
                 var period = (1 / frequency) * scal;
 
                 var arcTan = amplitude* Math.Sign(Math.Sin(2 * Math.PI * index / period + phase)); //Math.Asin(Math.Sin(2 * Math.PI * index * frequency));
@@ -301,11 +314,16 @@ namespace TSOS1
 
         private  PointPairList GetPointsForTriangle(PointPairList pairList, double amplitude, double phase, double frequency, int N)
         {
+            PointPairList pairList2 = new PointPairList();
+           //  GetPointsForPoliSyn(pairList2, amplitude/5, phase, Int32.Parse(SecondFrequency.Value.ToString()), N);
+            GetPointsForPoliSyn(pairList2, Int32.Parse(Amplitude2.Value.ToString()), phase,frequency, N);
+
             var noize = checkBoxNoize.Checked;
 
             for (var index = 0; index <= N; index++)
             {
-                var period = (1 / frequency) * scal;
+                amplitude = pairList2[index].Y;
+                var period = (1 / frequency) *10000;
 
                 var first = amplitude * Math.Asin(Math.Sin(2*Math.PI*index/period + phase))/Math.PI;// (2 * amplitude / Math.PI);
 
